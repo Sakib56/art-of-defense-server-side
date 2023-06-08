@@ -27,12 +27,50 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
+
+        const allClassCollection = client.db('ArtOfDefense').collection('allClasses')
+        const usersCollection = client.db('ArtOfDefense').collection('users')
+
+        // all classes api
+        app.get('/popularClasses', async (req, res) => {
+            const result = await allClassCollection.find().sort({ student_admit_number: -1 }).toArray();
+            res.send(result)
+        })
+
+        app.get('/allClasses', async (req, res) => {
+            const result = await allClassCollection.find().toArray();
+            res.send(result)
+        })
+
+        //users api
+
+        app.get('/instructors', async (req, res) => {
+            const query = { role: 'instructor' }
+            const result = await usersCollection.find(query).toArray();
+            res.send(result)
+        })
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email }
+            // console.log(user)
+            const existingUser = await usersCollection.findOne(query);
+            // console.log("existing user", existingUser)
+            if (existingUser) {
+                return res.send({ message: 'user already' })
+            }
+            const result = await usersCollection.insertOne(user)
+            res.send(result)
+        })
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
-        await client.close();
+        // await client.close();
     }
 }
 run().catch(console.dir);
