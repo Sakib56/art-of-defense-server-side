@@ -77,10 +77,12 @@ async function run() {
             const data = req.body;
             const id = data.id
             const seatNum = req.body.seatNum;
+            const student_admit_number = req.body.student_admit_number
             const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
                 $set: {
-                    available_seats: seatNum
+                    available_seats: seatNum,
+                    student_admit_number: student_admit_number
                 }
             }
             const result = await allClassCollection.updateOne(filter, updatedDoc)
@@ -93,6 +95,21 @@ async function run() {
             const query = { role: 'instructor' }
             const result = await usersCollection.find(query).toArray();
             res.send(result)
+        })
+        app.get('/userEmail', async (req, res) => {
+            const result = await usersCollection.find().toArray();
+            res.send(result)
+        })
+
+        app.get('/checkUser/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            if (req.decoded.email !== email) {
+                res.send({ user: false })
+            }
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            const result = { user: user?.role }
+            res.send(result);
         })
 
         app.post('/users', async (req, res) => {
@@ -197,8 +214,8 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Bistro Boss running')
+    res.send('art of defense running')
 })
 app.listen(port, () => {
-    console.log(`Bistro boss is running on port ${port}`)
+    console.log(`art of defense is running on port ${port}`)
 })
