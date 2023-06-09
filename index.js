@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const port = process.env.PORT || 5000;
@@ -8,6 +9,24 @@ const port = process.env.PORT || 5000;
 app.use(cors())
 app.use(express.json())
 
+
+// verify jwt
+const verifyJWT = (req, res, next) => {
+    const authorization = req.headers.authorization;
+    if (!authorization) {
+        return res.status(401).send({ error: true, message: 'unauthorized access' })
+    }
+    // bearer token
+    const token = authorization.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ error: true, message: 'unauthorized access' })
+        }
+        req.decoded = decoded;
+        next()
+    })
+}
 
 
 
@@ -30,6 +49,16 @@ async function run() {
 
         const allClassCollection = client.db('ArtOfDefense').collection('allClasses')
         const usersCollection = client.db('ArtOfDefense').collection('users')
+        const studentsCollection = client.db('ArtOfDefense').collection('studentsSelectClasses')
+
+
+        // jwt token handle
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+            res.send(token)
+        })
+
 
         // all classes api
         app.get('/popularClasses', async (req, res) => {
@@ -63,6 +92,13 @@ async function run() {
             res.send(result)
         })
 
+
+        // students api
+        app.post('/studentSelectClasses', async (req, res) => {
+            const user = req.body;
+            const result = await studentsCollection.insertOne(user)
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection
