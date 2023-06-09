@@ -154,6 +154,12 @@ async function run() {
 
 
         // create payment intent 
+
+        app.get('/enrolledClasses', async (req, res) => {
+            const result = await paymentCollection.find().toArray();
+            res.send(result)
+        })
+
         app.post('/create-payment-intent', verifyJWT, async (req, res) => {
             const { price } = req.body;
             const amount = parseInt(price * 100);
