@@ -159,6 +159,10 @@ async function run() {
             const result = await paymentCollection.find().toArray();
             res.send(result)
         })
+        app.get('/paymentHistory', async (req, res) => {
+            const result = await paymentCollection.find().sort({ date: -1 }).toArray();
+            res.send(result)
+        })
 
         app.post('/create-payment-intent', verifyJWT, async (req, res) => {
             const { price } = req.body;
