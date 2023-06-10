@@ -73,6 +73,13 @@ async function run() {
             res.send(result)
         })
 
+
+        app.post('/newClass', async (req, res) => {
+            const newClass = req.body;
+            const result = await allClassCollection.insertOne(newClass)
+            res.send(result)
+        })
+
         app.patch('/updateSeatNumbers', async (req, res) => {
             const data = req.body;
             const id = data.id
