@@ -179,11 +179,6 @@ async function run() {
         // students api
         app.post('/studentSelectClasses', async (req, res) => {
             const user = req.body;
-            const id = user._id;
-            const existingUser = await studentsCollection.findOne({ _id: id })
-            if (existingUser) {
-                return res.status(200).json({ message: 'User already select this class' });
-            }
             const result = await studentsCollection.insertOne(user)
             res.send(result)
         })
@@ -206,14 +201,14 @@ async function run() {
 
         app.get('/cart/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: id };
+            const query = { _id: new ObjectId(id) };
             const result = await studentsCollection.find(query).toArray();
             res.send(result);
         })
 
         app.delete('/carts/:id', async (req, res) => {
             const id = req.params.id
-            const query = { _id: id };
+            const query = { _id: new ObjectId(id) };
             const result = await studentsCollection.deleteOne(query);
             res.send(result)
         })
