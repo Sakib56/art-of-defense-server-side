@@ -133,6 +133,20 @@ async function run() {
         })
 
 
+        app.patch('/updateUser', async (req, res) => {
+            const data = req.body;
+            const id = data.id;
+            const role = data.role;
+            const filter = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    role: role,
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc)
+            res.send(result)
+        })
+
         // students api
         app.post('/studentSelectClasses', async (req, res) => {
             const user = req.body;
