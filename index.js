@@ -62,7 +62,8 @@ async function run() {
         })
 
 
-        // all classes api
+        // ----------- all classes api   ---------
+
         app.get('/popularClasses', async (req, res) => {
             const result = await allClassCollection.find().sort({ student_admit_number: -1 }).toArray();
             res.send(result)
@@ -93,6 +94,33 @@ async function run() {
                 }
             }
             const result = await allClassCollection.updateOne(filter, updatedDoc)
+            res.send(result)
+        })
+        app.patch('/updateClassStatus', async (req, res) => {
+            const data = req.body;
+            const id = data.id
+            const status = req.body.status;
+            const filter = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    status: status,
+                }
+            }
+            const result = await allClassCollection.updateOne(filter, updatedDoc)
+            res.send(result)
+        })
+        app.patch('/updateFeedback', async (req, res) => {
+            const data = req.body;
+            const id = data.id;
+            const Feedback = data.Feedback;
+            const filter = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    Feedback: Feedback,
+                }
+            }
+            const options = { upsert: true };
+            const result = await allClassCollection.updateOne(filter, updatedDoc, options)
             res.send(result)
         })
 
@@ -146,6 +174,7 @@ async function run() {
             const result = await usersCollection.updateOne(filter, updatedDoc)
             res.send(result)
         })
+
 
         // students api
         app.post('/studentSelectClasses', async (req, res) => {
